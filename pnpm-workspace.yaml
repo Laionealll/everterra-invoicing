@@ -1,0 +1,12 @@
+# pnpm 11 reads these settings here instead of the "pnpm" field in package.json.
+
+# Decision on packages that ship install/build scripts. pnpm blocks them by
+# default as a security measure and errors (ERR_PNPM_IGNORED_BUILDS) until a
+# decision is recorded here — which would otherwise break the Railway deploy.
+allowBuilds:
+  sharp: true   # native image library — allow it to set up its platform binary
+  msw: false    # dev-only mock server, not used at build/runtime
+
+# Pin transitive hono (Better Auth's HTTP layer) to the known-good version.
+overrides:
+  hono: 4.12.25

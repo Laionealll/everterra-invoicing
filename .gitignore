@@ -1,0 +1,16 @@
+# Dependencies
+node_modules
+
+# Next.js
+.next/
+out/
+
+# Environment variables (set these in the Railway dashboard, not in git)
+.env
+.env*.local
+
+# Misc
+.DS_Store
+
+# Loose preview screenshots in the repo root (kept on disk, not versioned)
+/*.png
