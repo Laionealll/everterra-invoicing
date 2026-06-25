@@ -31,14 +31,17 @@ function escapeHtml(value: string): string {
 function brandedEmail({
   legalName,
   tagline,
+  address,
   contentHtml,
 }: {
   legalName: string
   tagline?: string
+  address?: string
   contentHtml: string
 }): string {
   const name = escapeHtml(legalName)
   const sub = tagline ? escapeHtml(tagline) : ""
+  const addr = address ? escapeHtml(address) : ""
   return `<!DOCTYPE html>
 <html lang="en">
 <body style="margin:0; padding:0; background:#eef2ec;">
@@ -59,8 +62,9 @@ function brandedEmail({
             </td>
           </tr>
           <tr>
-            <td style="padding:16px 8px 0; text-align:center; color:#9aa39a; font-size:11px; font-family: Arial, Helvetica, sans-serif;">
-              This is an automated message from ${name}.
+            <td style="padding:16px 8px 0; text-align:center; color:#9aa39a; font-size:11px; line-height:1.6; font-family: Arial, Helvetica, sans-serif;">
+              ${name}${addr ? ` &middot; ${addr}` : ""}<br>
+              This is an automated message. Please do not mark it as junk so future invoices reach your inbox.
             </td>
           </tr>
         </table>
@@ -75,11 +79,14 @@ type SendArgs = {
   to: string
   subject: string
   html: string
+  // Versión en texto plano. Enviar HTML + texto (multipart) mejora la
+  // entregabilidad: los filtros de spam penalizan los correos solo-HTML.
+  text?: string
   replyTo?: string
   attachments?: { filename: string; content: Buffer }[]
 }
 
-async function send({ to, subject, html, replyTo, attachments }: SendArgs): Promise<{ sent: boolean }> {
+async function send({ to, subject, html, text, replyTo, attachments }: SendArgs): Promise<{ sent: boolean }> {
   if (!emailConfigured()) {
     console.log("[everterra] Email not configured. Would send:", { to, subject })
     return { sent: false }
@@ -91,6 +98,7 @@ async function send({ to, subject, html, replyTo, attachments }: SendArgs): Prom
     to,
     subject,
     html,
+    text,
     replyTo,
     attachments: attachments?.map((a) => ({ filename: a.filename, content: a.content })),
   })
@@ -130,10 +138,22 @@ export async function sendPasswordResetEmail({
     <p style="font-size:13px; line-height:1.6; color:${MUTED}; margin:0;">
       If you didn't request this, you can safely ignore this email and your password will remain unchanged.
     </p>`
+  const text = `Hi ${name || "there"},
+
+We received a request to reset the password for your Everterra invoicing account.
+Open the link below to choose a new password:
+
+${url}
+
+If you didn't request this, you can safely ignore this email and your password will remain unchanged.
+
+Everterra LLC`
+
   return send({
     to,
     subject: "Reset your Everterra password",
     html: brandedEmail({ legalName: "Everterra LLC", tagline: "Invoicing Portal", contentHtml: content }),
+    text,
   })
 }
 
@@ -159,6 +179,7 @@ export async function sendInvoiceEmail({
     tagline?: string
     phone?: string
     email?: string
+    registeredAddress?: string
     acceptedMethods?: string
     zelleEmail?: string
   }
@@ -205,11 +226,38 @@ export async function sendInvoiceEmail({
         : ""
     }`
 
+  const textLines = [
+    `Dear ${clientName || "Valued Customer"},`,
+    "",
+    `Thank you for your business. Please find invoice ${invoiceNumber} attached to this email as a PDF.`,
+    "",
+    `Invoice: ${invoiceNumber}`,
+    dueDate ? `Due date: ${dueDate}` : "",
+    `Amount due: ${total}`,
+    "",
+    company?.acceptedMethods ? `Payment: ${company.acceptedMethods}` : "",
+    company?.zelleEmail ? `Zelle: ${company.zelleEmail}` : "",
+    "",
+    "If you have any questions about this invoice, simply reply to this email.",
+    "",
+    "Best regards,",
+    legalName,
+    [company?.phone, company?.email].filter(Boolean).join(" · "),
+    company?.registeredAddress || "",
+  ]
+  const text = textLines.filter((line, i) => line !== "" || textLines[i - 1] !== "").join("\n")
+
   return send({
     to,
     replyTo,
     subject: `Invoice ${invoiceNumber} from ${legalName}`,
-    html: brandedEmail({ legalName, tagline: company?.tagline, contentHtml: content }),
+    html: brandedEmail({
+      legalName,
+      tagline: company?.tagline,
+      address: company?.registeredAddress,
+      contentHtml: content,
+    }),
+    text,
     attachments: pdf ? [{ filename: `${invoiceNumber}.pdf`, content: pdf }] : undefined,
   })
 }

@@ -251,6 +251,7 @@ export async function sendInvoice(id: number) {
         tagline: company.tagline,
         phone: company.phone,
         email: company.email,
+        registeredAddress: company.registeredAddress,
         acceptedMethods: company.acceptedMethods,
         zelleEmail: company.zelleEmail,
       },
