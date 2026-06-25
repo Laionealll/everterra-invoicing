@@ -237,12 +237,23 @@ export async function sendInvoice(id: number) {
     } catch (err) {
       console.error("[everterra] Could not render invoice PDF for email:", err)
     }
+    const { formatCurrency, formatDate } = await import("@/lib/format")
     const res = await sendInvoiceEmail({
       to,
+      clientName: data.client?.contactName || data.client?.name || undefined,
       invoiceNumber: data.invoice.invoiceNumber,
-      total: data.invoice.total,
+      total: formatCurrency(data.invoice.total),
+      dueDate: formatDate(data.invoice.dueDate),
       pdf,
       replyTo: company.email || undefined,
+      company: {
+        legalName: company.legalName,
+        tagline: company.tagline,
+        phone: company.phone,
+        email: company.email,
+        acceptedMethods: company.acceptedMethods,
+        zelleEmail: company.zelleEmail,
+      },
     })
     emailed = res.sent
   }
