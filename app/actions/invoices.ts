@@ -220,10 +220,29 @@ export async function sendInvoice(id: number) {
   const { sendInvoiceEmail, emailConfigured } = await import("@/lib/email")
   let emailed = false
   if (to) {
+    // Genera el PDF y adjúntalo, para que el correo cumpla con el
+    // "Please find attached invoice…" del mensaje. Las respuestas del cliente
+    // van al correo de la empresa (replyTo).
+    const { getSettings } = await import("@/app/actions/settings")
+    const { renderInvoicePdf } = await import("@/lib/pdf/render-invoice")
+    const company = await getSettings()
+    let pdf: Buffer | undefined
+    try {
+      pdf = await renderInvoicePdf({
+        invoice: data.invoice,
+        client: data.client,
+        items: data.items,
+        company,
+      })
+    } catch (err) {
+      console.error("[everterra] Could not render invoice PDF for email:", err)
+    }
     const res = await sendInvoiceEmail({
       to,
       invoiceNumber: data.invoice.invoiceNumber,
       total: data.invoice.total,
+      pdf,
+      replyTo: company.email || undefined,
     })
     emailed = res.sent
   }

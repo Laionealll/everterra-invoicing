@@ -10,10 +10,11 @@ type SendArgs = {
   to: string
   subject: string
   html: string
+  replyTo?: string
   attachments?: { filename: string; content: Buffer }[]
 }
 
-async function send({ to, subject, html, attachments }: SendArgs): Promise<{ sent: boolean }> {
+async function send({ to, subject, html, replyTo, attachments }: SendArgs): Promise<{ sent: boolean }> {
   if (!emailConfigured()) {
     console.log("[everterra] Email not configured. Would send:", { to, subject })
     return { sent: false }
@@ -25,6 +26,7 @@ async function send({ to, subject, html, attachments }: SendArgs): Promise<{ sen
     to,
     subject,
     html,
+    replyTo,
     attachments: attachments?.map((a) => ({ filename: a.filename, content: a.content })),
   })
   return { sent: true }
@@ -51,14 +53,17 @@ export async function sendInvoiceEmail({
   invoiceNumber,
   total,
   pdf,
+  replyTo,
 }: {
   to: string
   invoiceNumber: string
   total: string
   pdf?: Buffer
+  replyTo?: string
 }) {
   return send({
     to,
+    replyTo,
     subject: `Invoice ${invoiceNumber} from Everterra LLC`,
     html: `<p>Please find attached invoice <strong>${invoiceNumber}</strong> for <strong>${total}</strong>.</p><p>Thank you for your business.</p><p>Everterra LLC</p>`,
     attachments: pdf ? [{ filename: `${invoiceNumber}.pdf`, content: pdf }] : undefined,
