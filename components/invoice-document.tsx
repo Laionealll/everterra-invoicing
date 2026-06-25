@@ -83,17 +83,17 @@ export function InvoiceDocument({
   return (
     <div className="mx-auto w-full max-w-3xl bg-card text-card-foreground">
       {/* Header band */}
-      <div className="flex flex-col gap-4 bg-sidebar px-8 py-7 text-sidebar-foreground sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-4 bg-[#3f7a4f] px-8 py-7 text-white sm:flex-row sm:items-center sm:justify-between">
         <div className="inline-flex w-fit rounded-md bg-card px-3 py-2">
           <BrandLogo variant="full" imgClassName="h-11" />
         </div>
         <div className="sm:text-right">
           <p className="font-serif text-3xl font-semibold tracking-tight">INVOICE</p>
-          <p className="mt-1 text-sm text-sidebar-foreground/80">{invoice.invoiceNumber}</p>
+          <p className="mt-1 text-sm text-white/80">{invoice.invoiceNumber}</p>
         </div>
       </div>
       {/* Accent rule */}
-      <div className="h-1 w-full bg-primary" />
+      <div className="h-1 w-full bg-[#7aa86f]" />
 
       <div className="px-8 py-7">
         {/* Parties */}
@@ -131,9 +131,9 @@ export function InvoiceDocument({
             <p className="text-xs uppercase tracking-wide text-muted-foreground">Due date</p>
             <p className="text-sm font-medium">{formatDate(invoice.dueDate)}</p>
           </div>
-          <div className="bg-primary/10 p-4">
-            <p className="text-xs uppercase tracking-wide text-primary/80">Amount due</p>
-            <p className="text-sm font-semibold text-primary">{formatCurrency(invoice.total)}</p>
+          <div className="bg-[#3f7a4f]/10 p-4">
+            <p className="text-xs uppercase tracking-wide text-[#3f7a4f]/80">Amount due</p>
+            <p className="text-sm font-semibold text-[#3f7a4f]">{formatCurrency(invoice.total)}</p>
           </div>
         </div>
 
@@ -141,7 +141,7 @@ export function InvoiceDocument({
         <div className="mt-6 overflow-hidden rounded-lg border border-border">
           <table className="w-full text-sm">
             <thead>
-              <tr className="bg-sidebar text-sidebar-foreground">
+              <tr className="bg-[#3f7a4f] text-white">
                 <th className="px-3 py-2.5 text-left font-medium">Product</th>
                 <th className="px-3 py-2.5 text-left font-medium">Details</th>
                 <th className="px-3 py-2.5 text-right font-medium">Qty</th>
@@ -192,7 +192,7 @@ export function InvoiceDocument({
                 <span className="tabular-nums">{formatCurrency(invoice.taxAmount)}</span>
               </div>
             )}
-            <div className="mt-1 flex items-center justify-between rounded-md bg-primary px-3 py-2.5 text-base font-semibold text-primary-foreground">
+            <div className="mt-1 flex items-center justify-between rounded-md bg-[#3f7a4f] px-3 py-2.5 text-base font-semibold text-white">
               <span>Total</span>
               <span className="tabular-nums">{formatCurrency(invoice.total)}</span>
             </div>
@@ -252,11 +252,11 @@ export function InvoiceDocument({
 
         {/* End of document marker */}
         <div className="mt-12 flex items-center gap-3">
-          <div className="h-px flex-1 bg-border" />
-          <span className="text-[10px] font-medium uppercase tracking-[0.25em] text-muted-foreground">
+          <div className="h-px flex-1 bg-[#3f7a4f]" />
+          <span className="text-[10px] font-medium uppercase tracking-[0.25em] text-[#3f7a4f]">
             End of Invoice
           </span>
-          <div className="h-px flex-1 bg-border" />
+          <div className="h-px flex-1 bg-[#3f7a4f]" />
         </div>
         <p className="mt-3 text-center text-xs text-muted-foreground">
           {company.legalName} · {company.phone} · {company.email}

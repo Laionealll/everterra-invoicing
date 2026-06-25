@@ -11,9 +11,12 @@ import { formatCurrency, formatDate } from "@/lib/format"
 // NOTA: el PDF de la factura SIEMPRE se genera en inglés (va dirigido a los
 // clientes), independientemente del idioma de la interfaz. No usar i18n aquí.
 
-const GREEN = "#2f5d3a"
+// Verde principal de la factura: aclarado para que no se vea tan fuerte.
+// Se usa en encabezado, cabecera de tabla, caja del total y líneas de fin,
+// de modo que toda la factura comparta el mismo verde y haya armonía.
+const GREEN = "#3f7a4f"
 const GREEN_LIGHT = "#7aa86f"
-const PRIMARY = "#356b41"
+const PRIMARY = "#3f7a4f"
 const PRIMARY_SOFT = "#e8f0e6"
 const INK = "#1f2a22"
 const MUTED = "#6b756c"
@@ -32,7 +35,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
   },
-  accent: { height: 3, backgroundColor: PRIMARY },
+  accent: { height: 3, backgroundColor: GREEN_LIGHT },
   brand: { fontSize: 18, fontFamily: "Helvetica-Bold", letterSpacing: 1 },
   tagline: { fontSize: 7, color: GREEN_LIGHT, marginTop: 3, letterSpacing: 1.5 },
   logoBox: {
@@ -147,10 +150,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: 32,
   },
-  endLine: { flex: 1, borderTopWidth: 1, borderTopColor: BORDER },
+  endLine: { flex: 1, borderTopWidth: 1, borderTopColor: GREEN },
   endText: {
     fontSize: 7,
-    color: MUTED,
+    color: GREEN,
     marginHorizontal: 8,
     textTransform: "uppercase",
     letterSpacing: 2,
