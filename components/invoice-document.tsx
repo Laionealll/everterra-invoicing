@@ -1,6 +1,9 @@
 import { BrandLogo } from "@/components/brand-logo"
 import { formatCurrency, formatDate } from "@/lib/format"
 
+// NOTA: la factura SIEMPRE se muestra en inglés (va dirigida a los clientes),
+// independientemente del idioma de la interfaz. No usar i18n aquí.
+
 export type InvoiceDocItem = {
   product: string
   origin: string | null
@@ -24,6 +27,8 @@ export type InvoiceDocData = {
   paymentTerms: string
   signatoryName: string
   signatoryTitle: string
+  receivedByName: string
+  receivedByCompany: string
   items: InvoiceDocItem[]
 }
 
@@ -73,6 +78,7 @@ export function InvoiceDocument({
     : []
 
   const showTax = Number(invoice.taxRate) > 0 || Number(invoice.taxAmount) > 0
+  const receivedCompany = invoice.receivedByCompany || client?.name || ""
 
   return (
     <div className="mx-auto w-full max-w-3xl bg-card text-card-foreground">
@@ -82,18 +88,18 @@ export function InvoiceDocument({
           <BrandLogo variant="full" imgClassName="h-11" />
         </div>
         <div className="sm:text-right">
-          <p className="font-serif text-2xl font-semibold">INVOICE</p>
-          <p className="text-sm text-sidebar-foreground/80">{invoice.invoiceNumber}</p>
+          <p className="font-serif text-3xl font-semibold tracking-tight">INVOICE</p>
+          <p className="mt-1 text-sm text-sidebar-foreground/80">{invoice.invoiceNumber}</p>
         </div>
       </div>
+      {/* Accent rule */}
+      <div className="h-1 w-full bg-primary" />
 
       <div className="px-8 py-7">
         {/* Parties */}
         <div className="grid gap-6 sm:grid-cols-2">
           <div className="flex flex-col gap-1">
-            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-              From
-            </p>
+            <p className="text-xs font-semibold uppercase tracking-wider text-primary">From</p>
             <p className="font-semibold">{company.legalName}</p>
             <p className="text-sm text-muted-foreground">{company.registeredAddress}</p>
             <p className="text-sm text-muted-foreground">Ops: {company.operations}</p>
@@ -101,9 +107,7 @@ export function InvoiceDocument({
             <p className="text-sm text-muted-foreground">{company.email}</p>
           </div>
           <div className="flex flex-col gap-1 sm:text-right">
-            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-              Bill to
-            </p>
+            <p className="text-xs font-semibold uppercase tracking-wider text-primary">Bill to</p>
             <p className="font-semibold">{client?.name ?? "—"}</p>
             {client?.contactName && (
               <p className="text-sm text-muted-foreground">Attn: {client.contactName}</p>
@@ -118,18 +122,18 @@ export function InvoiceDocument({
         </div>
 
         {/* Meta */}
-        <div className="mt-6 grid grid-cols-2 gap-4 rounded-lg border border-border bg-muted/40 p-4 sm:grid-cols-3">
-          <div>
+        <div className="mt-6 grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-border bg-border sm:grid-cols-3">
+          <div className="bg-muted/40 p-4">
             <p className="text-xs uppercase tracking-wide text-muted-foreground">Issue date</p>
             <p className="text-sm font-medium">{formatDate(invoice.issueDate)}</p>
           </div>
-          <div>
+          <div className="bg-muted/40 p-4">
             <p className="text-xs uppercase tracking-wide text-muted-foreground">Due date</p>
             <p className="text-sm font-medium">{formatDate(invoice.dueDate)}</p>
           </div>
-          <div>
-            <p className="text-xs uppercase tracking-wide text-muted-foreground">Amount due</p>
-            <p className="text-sm font-semibold">{formatCurrency(invoice.total)}</p>
+          <div className="bg-primary/10 p-4">
+            <p className="text-xs uppercase tracking-wide text-primary/80">Amount due</p>
+            <p className="text-sm font-semibold text-primary">{formatCurrency(invoice.total)}</p>
           </div>
         </div>
 
@@ -137,12 +141,12 @@ export function InvoiceDocument({
         <div className="mt-6 overflow-hidden rounded-lg border border-border">
           <table className="w-full text-sm">
             <thead>
-              <tr className="bg-secondary text-secondary-foreground">
-                <th className="px-3 py-2 text-left font-medium">Product</th>
-                <th className="px-3 py-2 text-left font-medium">Details</th>
-                <th className="px-3 py-2 text-right font-medium">Qty</th>
-                <th className="px-3 py-2 text-right font-medium">Unit</th>
-                <th className="px-3 py-2 text-right font-medium">Amount</th>
+              <tr className="bg-sidebar text-sidebar-foreground">
+                <th className="px-3 py-2.5 text-left font-medium">Product</th>
+                <th className="px-3 py-2.5 text-left font-medium">Details</th>
+                <th className="px-3 py-2.5 text-right font-medium">Qty</th>
+                <th className="px-3 py-2.5 text-right font-medium">Unit</th>
+                <th className="px-3 py-2.5 text-right font-medium">Amount</th>
               </tr>
             </thead>
             <tbody>
@@ -155,14 +159,17 @@ export function InvoiceDocument({
                   .filter(Boolean)
                   .join(" · ")
                 return (
-                  <tr key={i} className="border-t border-border align-top">
-                    <td className="px-3 py-2 font-medium">{it.product}</td>
-                    <td className="px-3 py-2 text-muted-foreground">{details || "—"}</td>
-                    <td className="px-3 py-2 text-right tabular-nums">{Number(it.qty)}</td>
-                    <td className="px-3 py-2 text-right tabular-nums">
+                  <tr
+                    key={i}
+                    className="border-t border-border align-top odd:bg-transparent even:bg-muted/30"
+                  >
+                    <td className="px-3 py-2.5 font-medium">{it.product}</td>
+                    <td className="px-3 py-2.5 text-muted-foreground">{details || "—"}</td>
+                    <td className="px-3 py-2.5 text-right tabular-nums">{Number(it.qty)}</td>
+                    <td className="px-3 py-2.5 text-right tabular-nums">
                       {formatCurrency(it.unitPrice)}
                     </td>
-                    <td className="px-3 py-2 text-right font-medium tabular-nums">
+                    <td className="px-3 py-2.5 text-right font-medium tabular-nums">
                       {formatCurrency(it.amount)}
                     </td>
                   </tr>
@@ -185,7 +192,7 @@ export function InvoiceDocument({
                 <span className="tabular-nums">{formatCurrency(invoice.taxAmount)}</span>
               </div>
             )}
-            <div className="mt-1 flex items-center justify-between border-t border-border py-2 text-base font-semibold">
+            <div className="mt-1 flex items-center justify-between rounded-md bg-primary px-3 py-2.5 text-base font-semibold text-primary-foreground">
               <span>Total</span>
               <span className="tabular-nums">{formatCurrency(invoice.total)}</span>
             </div>
@@ -193,41 +200,67 @@ export function InvoiceDocument({
         </div>
 
         {/* Payment + notes */}
-        <div className="mt-6 grid gap-6 sm:grid-cols-2">
-          <div className="flex flex-col gap-1 rounded-lg border border-border p-4">
-            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+        <div className="mt-8 grid gap-6 sm:grid-cols-2">
+          <div className="flex flex-col gap-1 rounded-lg border border-border bg-muted/30 p-4">
+            <p className="text-xs font-semibold uppercase tracking-wider text-primary">
               Payment instructions
             </p>
             <p className="text-sm">Accepted: {company.acceptedMethods}</p>
             {company.zelleEmail && <p className="text-sm">Zelle: {company.zelleEmail}</p>}
             {company.bankName && <p className="text-sm">Bank: {company.bankName}</p>}
-            {company.accountNumber && (
-              <p className="text-sm">Account: {company.accountNumber}</p>
-            )}
-            {company.routingNumber && (
-              <p className="text-sm">Routing: {company.routingNumber}</p>
-            )}
+            {company.accountNumber && <p className="text-sm">Account: {company.accountNumber}</p>}
+            {company.routingNumber && <p className="text-sm">Routing: {company.routingNumber}</p>}
             {invoice.paymentTerms && (
               <p className="mt-1 text-sm text-muted-foreground">{invoice.paymentTerms}</p>
             )}
           </div>
           <div className="flex flex-col gap-1">
-            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-              Notes & terms
+            <p className="text-xs font-semibold uppercase tracking-wider text-primary">
+              Notes &amp; terms
             </p>
             <p className="text-sm leading-relaxed text-muted-foreground">{invoice.notes}</p>
           </div>
         </div>
 
-        {/* Signature */}
-        <div className="mt-10 flex justify-end">
-          <div className="text-right">
-            <div className="mb-1 h-px w-48 bg-border" />
-            <p className="text-sm font-medium">{invoice.signatoryName}</p>
-            <p className="text-xs text-muted-foreground">{invoice.signatoryTitle}</p>
-            <p className="text-xs text-muted-foreground">{company.legalName}</p>
+        {/* Signatures: authorized signature (left) + received by (right) */}
+        <div className="mt-12 grid gap-10 sm:grid-cols-2">
+          <div className="flex flex-col">
+            <div className="h-10" />
+            <div className="border-t border-foreground/70 pt-2">
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                Authorized signature
+              </p>
+              <p className="mt-1 text-sm font-medium">{invoice.signatoryName}</p>
+              <p className="text-xs text-muted-foreground">{invoice.signatoryTitle}</p>
+              <p className="text-xs text-muted-foreground">{company.legalName}</p>
+            </div>
+          </div>
+          <div className="flex flex-col">
+            <div className="h-10" />
+            <div className="border-t border-foreground/70 pt-2">
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                Received by
+              </p>
+              <p className="mt-1 text-sm font-medium">{invoice.receivedByName || " "}</p>
+              <p className="text-xs text-muted-foreground">
+                Company: {receivedCompany || " "}
+              </p>
+              <p className="text-xs text-muted-foreground">Date: ______________________</p>
+            </div>
           </div>
         </div>
+
+        {/* End of document marker */}
+        <div className="mt-12 flex items-center gap-3">
+          <div className="h-px flex-1 bg-border" />
+          <span className="text-[10px] font-medium uppercase tracking-[0.25em] text-muted-foreground">
+            End of Invoice
+          </span>
+          <div className="h-px flex-1 bg-border" />
+        </div>
+        <p className="mt-3 text-center text-xs text-muted-foreground">
+          {company.legalName} · {company.phone} · {company.email}
+        </p>
       </div>
     </div>
   )

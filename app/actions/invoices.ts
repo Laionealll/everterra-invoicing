@@ -26,6 +26,8 @@ export type InvoiceInput = {
   paymentTerms: string
   signatoryName: string
   signatoryTitle: string
+  receivedByName: string
+  receivedByCompany: string
   items: InvoiceItemInput[]
 }
 
@@ -118,6 +120,8 @@ export async function createInvoice(input: InvoiceInput) {
       paymentTerms: input.paymentTerms,
       signatoryName: input.signatoryName,
       signatoryTitle: input.signatoryTitle,
+      receivedByName: input.receivedByName,
+      receivedByCompany: input.receivedByCompany,
       subtotal: String(totals.subtotal),
       taxAmount: String(totals.taxAmount),
       total: String(totals.total),
@@ -150,6 +154,8 @@ export async function updateInvoice(id: number, input: InvoiceInput) {
       paymentTerms: input.paymentTerms,
       signatoryName: input.signatoryName,
       signatoryTitle: input.signatoryTitle,
+      receivedByName: input.receivedByName,
+      receivedByCompany: input.receivedByCompany,
       subtotal: String(totals.subtotal),
       taxAmount: String(totals.taxAmount),
       total: String(totals.total),

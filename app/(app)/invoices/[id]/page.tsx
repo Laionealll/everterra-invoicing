@@ -8,6 +8,7 @@ import { InvoiceDocument } from "@/components/invoice-document"
 import { InvoiceToolbar } from "@/components/invoice-toolbar"
 import { StatusBadge } from "@/components/status-badge"
 import { Button } from "@/components/ui/button"
+import { getT } from "@/lib/i18n/server"
 import { ArrowLeft } from "lucide-react"
 
 export default async function InvoiceViewPage({
@@ -18,6 +19,7 @@ export default async function InvoiceViewPage({
   const user = await getCurrentUser()
   if (!user) redirect("/login")
 
+  const t = await getT()
   const { id } = await params
   const invoiceId = Number(id)
   if (!Number.isFinite(invoiceId)) notFound()
@@ -29,7 +31,10 @@ export default async function InvoiceViewPage({
 
   return (
     <>
-      <PageHeader title={invoice.invoiceNumber} description={client?.name ?? "Unknown client"}>
+      <PageHeader
+        title={invoice.invoiceNumber}
+        description={client?.name ?? t("invoiceView.unknownClient")}
+      >
         <InvoiceToolbar
           id={invoice.id}
           status={invoice.status}
@@ -41,7 +46,7 @@ export default async function InvoiceViewPage({
         <div className="flex items-center justify-between">
           <Button render={<Link href="/invoices" />} nativeButton={false} variant="ghost" size="sm">
             <ArrowLeft className="size-4" />
-            Back to invoices
+            {t("invoiceView.backToInvoices")}
           </Button>
           <StatusBadge status={invoice.status} />
         </div>
@@ -61,6 +66,8 @@ export default async function InvoiceViewPage({
               paymentTerms: invoice.paymentTerms,
               signatoryName: invoice.signatoryName,
               signatoryTitle: invoice.signatoryTitle,
+              receivedByName: invoice.receivedByName,
+              receivedByCompany: invoice.receivedByCompany,
               items: items.map((it) => ({
                 product: it.product,
                 origin: it.origin,

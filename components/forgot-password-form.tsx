@@ -4,6 +4,7 @@ import type React from "react"
 import { useState } from "react"
 import Link from "next/link"
 import { authClient } from "@/lib/auth-client"
+import { useI18n } from "@/components/i18n-provider"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -11,6 +12,7 @@ import { toast } from "sonner"
 import { Loader2 } from "lucide-react"
 
 export function ForgotPasswordForm() {
+  const { t } = useI18n()
   const [email, setEmail] = useState("")
   const [loading, setLoading] = useState(false)
   const [sent, setSent] = useState(false)
@@ -24,22 +26,19 @@ export function ForgotPasswordForm() {
     })
     setLoading(false)
     if (error) {
-      toast.error(error.message || "Could not start password reset")
+      toast.error(error.message || t("auth.resetStartError"))
       return
     }
     setSent(true)
-    toast.success("If that email exists, a reset link has been sent")
+    toast.success(t("auth.resetSent"))
   }
 
   if (sent) {
     return (
       <div className="flex flex-col gap-4 text-sm text-muted-foreground">
-        <p className="text-pretty">
-          If an account exists for <span className="font-medium text-foreground">{email}</span>, a
-          password reset link has been sent. Check your inbox and spam folder.
-        </p>
+        <p className="text-pretty">{t("auth.resetSentLong", { email })}</p>
         <Button render={<Link href="/login" />} nativeButton={false} variant="outline">
-          Back to sign in
+          {t("auth.backToSignIn")}
         </Button>
       </div>
     )
@@ -48,22 +47,22 @@ export function ForgotPasswordForm() {
   return (
     <form onSubmit={onSubmit} className="flex flex-col gap-4">
       <div className="flex flex-col gap-2">
-        <Label htmlFor="email">Email</Label>
+        <Label htmlFor="email">{t("auth.email")}</Label>
         <Input
           id="email"
           type="email"
           required
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder="you@everterra.com"
+          placeholder={t("auth.emailPlaceholder")}
         />
       </div>
       <Button type="submit" disabled={loading}>
         {loading && <Loader2 className="size-4 animate-spin" />}
-        Send reset link
+        {t("auth.sendResetLink")}
       </Button>
       <Button render={<Link href="/login" />} nativeButton={false} variant="ghost" size="sm">
-        Back to sign in
+        {t("auth.backToSignIn")}
       </Button>
     </form>
   )

@@ -5,6 +5,8 @@ import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { authClient } from "@/lib/auth-client"
 import { BrandLogo } from "@/components/brand-logo"
+import { LanguageToggle } from "@/components/language-toggle"
+import { useI18n } from "@/components/i18n-provider"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import {
@@ -21,19 +23,20 @@ import {
 type NavUser = { name: string; email: string; role: string }
 
 const baseNav = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/invoices", label: "Invoices", icon: FileText },
-  { href: "/clients", label: "Clients", icon: Users },
+  { href: "/dashboard", labelKey: "nav.dashboard", icon: LayoutDashboard },
+  { href: "/invoices", labelKey: "nav.invoices", icon: FileText },
+  { href: "/clients", labelKey: "nav.clients", icon: Users },
 ]
 const adminNav = [
-  { href: "/settings", label: "Company Settings", icon: Settings },
-  { href: "/admin/users", label: "Users", icon: UserCog },
+  { href: "/settings", labelKey: "nav.settings", icon: Settings },
+  { href: "/admin/users", labelKey: "nav.users", icon: UserCog },
 ]
 
 export function MobileNav({ user }: { user: NavUser }) {
   const [open, setOpen] = useState(false)
   const pathname = usePathname()
   const router = useRouter()
+  const { t } = useI18n()
   const nav = [...baseNav, ...(user.role === "ADMIN" ? adminNav : [])]
 
   async function handleSignOut() {
@@ -53,15 +56,18 @@ export function MobileNav({ user }: { user: NavUser }) {
             Everterra
           </span>
         </div>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => setOpen((o) => !o)}
-          className="text-sidebar-foreground hover:bg-sidebar-accent/60"
-          aria-label="Toggle navigation"
-        >
-          {open ? <X className="size-5" /> : <Menu className="size-5" />}
-        </Button>
+        <div className="flex items-center gap-1">
+          <LanguageToggle className="text-sidebar-foreground hover:bg-sidebar-accent/60" />
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setOpen((o) => !o)}
+            className="text-sidebar-foreground hover:bg-sidebar-accent/60"
+            aria-label={t("nav.toggleNav")}
+          >
+            {open ? <X className="size-5" /> : <Menu className="size-5" />}
+          </Button>
+        </div>
       </header>
       {open && (
         <nav className="border-b bg-sidebar p-3 text-sidebar-foreground">
@@ -81,7 +87,7 @@ export function MobileNav({ user }: { user: NavUser }) {
                 )}
               >
                 <Icon className="size-4" />
-                {item.label}
+                {t(item.labelKey)}
               </Link>
             )
           })}
@@ -90,7 +96,7 @@ export function MobileNav({ user }: { user: NavUser }) {
             className="mt-1 flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-sidebar-foreground/80"
           >
             <LogOut className="size-4" />
-            Sign out
+            {t("nav.signOut")}
           </button>
         </nav>
       )}

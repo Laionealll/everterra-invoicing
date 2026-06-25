@@ -58,6 +58,8 @@ export async function GET(
         paymentTerms: invoice.paymentTerms,
         signatoryName: invoice.signatoryName,
         signatoryTitle: invoice.signatoryTitle,
+        receivedByName: invoice.receivedByName,
+        receivedByCompany: invoice.receivedByCompany,
         items: items.map((it) => ({
           product: it.product,
           origin: it.origin,

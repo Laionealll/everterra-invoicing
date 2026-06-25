@@ -28,6 +28,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { toast } from "sonner"
+import { useI18n } from "@/components/i18n-provider"
 import { MoreHorizontal, Pencil, Trash2 } from "lucide-react"
 
 export type ClientRow = {
@@ -48,6 +49,7 @@ export type ClientRow = {
 
 export function ClientsTable({ clients }: { clients: ClientRow[] }) {
   const router = useRouter()
+  const { t } = useI18n()
   const [editing, setEditing] = useState<ClientRow | null>(null)
   const [deleting, setDeleting] = useState<ClientRow | null>(null)
   const [busy, setBusy] = useState(false)
@@ -57,11 +59,11 @@ export function ClientsTable({ clients }: { clients: ClientRow[] }) {
     setBusy(true)
     try {
       await deleteClient(deleting.id)
-      toast.success("Client deleted")
+      toast.success(t("clients.deleted"))
       setDeleting(null)
       router.refresh()
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Could not delete client")
+      toast.error(err instanceof Error ? err.message : t("clients.deleteError"))
     } finally {
       setBusy(false)
     }
@@ -73,10 +75,10 @@ export function ClientsTable({ clients }: { clients: ClientRow[] }) {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Client</TableHead>
-              <TableHead className="hidden sm:table-cell">Contact</TableHead>
-              <TableHead className="hidden md:table-cell">Location</TableHead>
-              <TableHead className="text-right">Invoices</TableHead>
+              <TableHead>{t("clients.colClient")}</TableHead>
+              <TableHead className="hidden sm:table-cell">{t("clients.colContact")}</TableHead>
+              <TableHead className="hidden md:table-cell">{t("clients.colLocation")}</TableHead>
+              <TableHead className="text-right">{t("clients.colInvoices")}</TableHead>
               <TableHead className="w-12" />
             </TableRow>
           </TableHeader>
@@ -105,19 +107,19 @@ export function ClientsTable({ clients }: { clients: ClientRow[] }) {
                       render={<Button variant="ghost" size="icon" className="size-8" />}
                     >
                       <MoreHorizontal className="size-4" />
-                      <span className="sr-only">Actions</span>
+                      <span className="sr-only">{t("common.actions")}</span>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem onClick={() => setEditing(c)}>
                         <Pencil className="size-4" />
-                        Edit
+                        {t("common.edit")}
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         className="text-destructive focus:text-destructive"
                         onClick={() => setDeleting(c)}
                       >
                         <Trash2 className="size-4" />
-                        Delete
+                        {t("common.delete")}
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -152,17 +154,17 @@ export function ClientsTable({ clients }: { clients: ClientRow[] }) {
       <Dialog open={Boolean(deleting)} onOpenChange={(o) => !o && setDeleting(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete client</DialogTitle>
+            <DialogTitle>{t("clients.deleteTitle")}</DialogTitle>
             <DialogDescription>
-              Delete {deleting?.name}? This cannot be undone.
+              {t("clients.deleteDesc", { name: deleting?.name ?? "" })}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDeleting(null)}>
-              Cancel
+              {t("common.cancel")}
             </Button>
             <Button variant="destructive" disabled={busy} onClick={confirmDelete}>
-              Delete
+              {t("common.delete")}
             </Button>
           </DialogFooter>
         </DialogContent>

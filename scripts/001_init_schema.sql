@@ -108,6 +108,8 @@ CREATE TABLE IF NOT EXISTS "invoices" (
   "paymentTerms" text NOT NULL DEFAULT '',
   "signatoryName" text NOT NULL DEFAULT 'Ramón Rodríguez',
   "signatoryTitle" text NOT NULL DEFAULT 'Chief Manager',
+  "receivedByName" text NOT NULL DEFAULT '',
+  "receivedByCompany" text NOT NULL DEFAULT '',
   "subtotal" numeric(14,2) NOT NULL DEFAULT 0,
   "taxAmount" numeric(14,2) NOT NULL DEFAULT 0,
   "total" numeric(14,2) NOT NULL DEFAULT 0,
@@ -129,6 +131,16 @@ CREATE TABLE IF NOT EXISTS "invoice_items" (
   "amount" numeric(14,2) NOT NULL DEFAULT 0,
   "sortOrder" integer NOT NULL DEFAULT 0
 );
+
+-- ─────────────────────────────────────────────
+-- Migraciones idempotentes de columnas
+-- ─────────────────────────────────────────────
+-- CREATE TABLE IF NOT EXISTS NO agrega columnas nuevas a tablas que ya existen.
+-- Por eso, cualquier columna añadida después del despliegue inicial debe
+-- declararse también aquí con ADD COLUMN IF NOT EXISTS, para que se aplique sola
+-- en el próximo arranque sin necesidad de borrar la base de datos.
+ALTER TABLE "invoices" ADD COLUMN IF NOT EXISTS "receivedByName" text NOT NULL DEFAULT '';
+ALTER TABLE "invoices" ADD COLUMN IF NOT EXISTS "receivedByCompany" text NOT NULL DEFAULT '';
 
 -- Fila única de configuración de la empresa.
 INSERT INTO "company_settings" ("id") VALUES (1) ON CONFLICT ("id") DO NOTHING;

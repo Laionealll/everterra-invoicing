@@ -5,6 +5,7 @@ import { useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { authClient } from "@/lib/auth-client"
+import { useI18n } from "@/components/i18n-provider"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -13,6 +14,7 @@ import { Loader2 } from "lucide-react"
 
 export function ResetPasswordForm() {
   const router = useRouter()
+  const { t } = useI18n()
   const params = useSearchParams()
   const token = params.get("token")
   const [password, setPassword] = useState("")
@@ -22,9 +24,9 @@ export function ResetPasswordForm() {
   if (!token) {
     return (
       <div className="flex flex-col gap-4 text-sm text-muted-foreground">
-        <p>This reset link is invalid or has expired.</p>
+        <p>{t("auth.linkInvalid")}</p>
         <Button render={<Link href="/forgot-password" />} nativeButton={false} variant="outline">
-          Request a new link
+          {t("auth.requestNewLink")}
         </Button>
       </div>
     )
@@ -33,39 +35,39 @@ export function ResetPasswordForm() {
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (password.length < 8) {
-      toast.error("Password must be at least 8 characters")
+      toast.error(t("auth.passwordTooShort"))
       return
     }
     if (password !== confirm) {
-      toast.error("Passwords do not match")
+      toast.error(t("auth.passwordsNoMatch"))
       return
     }
     setLoading(true)
     const { error } = await authClient.resetPassword({ newPassword: password, token: token! })
     setLoading(false)
     if (error) {
-      toast.error(error.message || "Could not reset password")
+      toast.error(error.message || t("auth.resetError"))
       return
     }
-    toast.success("Password updated. Please sign in.")
+    toast.success(t("auth.passwordUpdated"))
     router.push("/login")
   }
 
   return (
     <form onSubmit={onSubmit} className="flex flex-col gap-4">
       <div className="flex flex-col gap-2">
-        <Label htmlFor="password">New password</Label>
+        <Label htmlFor="password">{t("auth.newPassword")}</Label>
         <Input
           id="password"
           type="password"
           required
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          placeholder="At least 8 characters"
+          placeholder={t("auth.passwordMin")}
         />
       </div>
       <div className="flex flex-col gap-2">
-        <Label htmlFor="confirm">Confirm new password</Label>
+        <Label htmlFor="confirm">{t("auth.confirmPassword")}</Label>
         <Input
           id="confirm"
           type="password"
@@ -76,7 +78,7 @@ export function ResetPasswordForm() {
       </div>
       <Button type="submit" disabled={loading}>
         {loading && <Loader2 className="size-4 animate-spin" />}
-        Update password
+        {t("auth.updatePassword")}
       </Button>
     </form>
   )

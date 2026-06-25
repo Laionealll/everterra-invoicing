@@ -1,10 +1,12 @@
 import { Suspense } from "react"
 import { AuthShell } from "@/components/auth-shell"
 import { ResetPasswordForm } from "@/components/reset-password-form"
+import { getT } from "@/lib/i18n/server"
 
-export default function ResetPasswordPage() {
+export default async function ResetPasswordPage() {
+  const t = await getT()
   return (
-    <AuthShell title="Set a new password" description="Choose a new password for your account.">
+    <AuthShell title={t("auth.resetTitle")} description={t("auth.resetDesc")}>
       <Suspense fallback={null}>
         <ResetPasswordForm />
       </Suspense>

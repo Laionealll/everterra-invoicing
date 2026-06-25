@@ -5,6 +5,7 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { createFirstAdmin } from "@/app/actions/users"
 import { authClient } from "@/lib/auth-client"
+import { useI18n } from "@/components/i18n-provider"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -13,6 +14,7 @@ import { Loader2 } from "lucide-react"
 
 export function SetupForm() {
   const router = useRouter()
+  const { t } = useI18n()
   const [loading, setLoading] = useState(false)
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -26,11 +28,11 @@ export function SetupForm() {
       await createFirstAdmin({ name, email, password })
       // Sign the new admin in immediately.
       await authClient.signIn.email({ email, password })
-      toast.success("Admin account created")
+      toast.success(t("auth.adminCreated"))
       router.push("/dashboard")
       router.refresh()
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Could not complete setup")
+      toast.error(err instanceof Error ? err.message : t("auth.setupError"))
       setLoading(false)
     }
   }
@@ -38,27 +40,27 @@ export function SetupForm() {
   return (
     <form onSubmit={onSubmit} className="flex flex-col gap-4">
       <div className="flex flex-col gap-2">
-        <Label htmlFor="name">Your name</Label>
-        <Input id="name" name="name" required placeholder="Ramón Rodríguez" />
+        <Label htmlFor="name">{t("auth.yourName")}</Label>
+        <Input id="name" name="name" required placeholder={t("auth.namePlaceholder")} />
       </div>
       <div className="flex flex-col gap-2">
-        <Label htmlFor="email">Email</Label>
-        <Input id="email" name="email" type="email" required placeholder="you@everterra.com" />
+        <Label htmlFor="email">{t("auth.email")}</Label>
+        <Input id="email" name="email" type="email" required placeholder={t("auth.emailPlaceholder")} />
       </div>
       <div className="flex flex-col gap-2">
-        <Label htmlFor="password">Password</Label>
+        <Label htmlFor="password">{t("auth.password")}</Label>
         <Input
           id="password"
           name="password"
           type="password"
           minLength={8}
           required
-          placeholder="At least 8 characters"
+          placeholder={t("auth.passwordMin")}
         />
       </div>
       <Button type="submit" disabled={loading} className="mt-2">
         {loading && <Loader2 className="size-4 animate-spin" />}
-        Create admin & continue
+        {t("auth.createAdmin")}
       </Button>
     </form>
   )

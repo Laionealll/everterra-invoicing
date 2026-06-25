@@ -1,8 +1,13 @@
+"use client"
+
+import { useI18n } from "@/components/i18n-provider"
 import { cn } from "@/lib/utils"
-import { STATUS_LABELS, statusBadgeClasses, type InvoiceStatus } from "@/lib/format"
+import { statusBadgeClasses } from "@/lib/format"
 
 export function StatusBadge({ status }: { status: string }) {
-  const label = STATUS_LABELS[status as InvoiceStatus] ?? status
+  const { t } = useI18n()
+  // Las claves siguen el patrón invoices.statusDRAFT, invoices.statusSENT, etc.
+  const label = t(`invoices.status${status}`)
   return (
     <span
       className={cn(

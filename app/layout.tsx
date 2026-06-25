@@ -1,6 +1,9 @@
 import type { Metadata, Viewport } from 'next'
 import { Geist, Geist_Mono, Lora } from 'next/font/google'
 import { Toaster } from '@/components/ui/sonner'
+import { I18nProvider } from '@/components/i18n-provider'
+import { getDictionary } from '@/lib/i18n/dictionaries'
+import { getLocale } from '@/lib/i18n/server'
 import './globals.css'
 
 const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] })
@@ -41,19 +44,24 @@ export const viewport: Viewport = {
   themeColor: 'white',
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const locale = await getLocale()
+  const dict = getDictionary(locale)
+
   return (
     <html
-      lang="en"
+      lang={locale}
       className={`${geistSans.variable} ${geistMono.variable} ${lora.variable} bg-background`}
     >
       <body className="font-sans antialiased">
-        {children}
-        <Toaster richColors position="top-right" />
+        <I18nProvider locale={locale} dict={dict}>
+          {children}
+          <Toaster richColors position="top-right" />
+        </I18nProvider>
       </body>
     </html>
   )

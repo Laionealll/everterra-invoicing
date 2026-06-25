@@ -141,6 +141,10 @@ export const invoices = pgTable("invoices", {
   paymentTerms: text("paymentTerms").notNull().default(""),
   signatoryName: text("signatoryName").notNull().default("Ramón Rodríguez"),
   signatoryTitle: text("signatoryTitle").notNull().default("Chief Manager"),
+  // "Recibido por" (lado derecho de la factura): quién recibe la mercancía y la
+  // compañía a la que pertenece. Por defecto se autocompleta con el cliente.
+  receivedByName: text("receivedByName").notNull().default(""),
+  receivedByCompany: text("receivedByCompany").notNull().default(""),
   subtotal: numeric("subtotal", { precision: 14, scale: 2 })
     .notNull()
     .default("0"),

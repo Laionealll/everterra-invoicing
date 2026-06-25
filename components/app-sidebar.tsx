@@ -4,6 +4,8 @@ import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { authClient } from "@/lib/auth-client"
 import { BrandLogo } from "@/components/brand-logo"
+import { LanguageToggle } from "@/components/language-toggle"
+import { useI18n } from "@/components/i18n-provider"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {
@@ -31,19 +33,20 @@ import {
 type NavUser = { name: string; email: string; role: string }
 
 const baseNav = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/invoices", label: "Invoices", icon: FileText },
-  { href: "/clients", label: "Clients", icon: Users },
+  { href: "/dashboard", labelKey: "nav.dashboard", icon: LayoutDashboard },
+  { href: "/invoices", labelKey: "nav.invoices", icon: FileText },
+  { href: "/clients", labelKey: "nav.clients", icon: Users },
 ]
 
 const adminNav = [
-  { href: "/settings", label: "Company Settings", icon: Settings },
-  { href: "/admin/users", label: "Users", icon: UserCog },
+  { href: "/settings", labelKey: "nav.settings", icon: Settings },
+  { href: "/admin/users", labelKey: "nav.users", icon: UserCog },
 ]
 
 export function AppSidebar({ user }: { user: NavUser }) {
   const pathname = usePathname()
   const router = useRouter()
+  const { t } = useI18n()
   const isAdmin = user.role === "ADMIN"
 
   const nav = [...baseNav, ...(isAdmin ? adminNav : [])]
@@ -72,7 +75,7 @@ export function AppSidebar({ user }: { user: NavUser }) {
             Everterra
           </span>
           <span className="text-[10px] uppercase tracking-[0.18em] text-sidebar-foreground/60">
-            Invoicing
+            {t("nav.brandSub")}
           </span>
         </div>
       </div>
@@ -92,11 +95,14 @@ export function AppSidebar({ user }: { user: NavUser }) {
               )}
             >
               <Icon className="size-4 shrink-0" />
-              {item.label}
+              {t(item.labelKey)}
             </Link>
           )
         })}
       </nav>
+      <div className="px-3 pb-1">
+        <LanguageToggle className="w-full justify-start text-sidebar-foreground/80 hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground" />
+      </div>
       <div className="border-t border-sidebar-border p-3">
         <DropdownMenu>
           <DropdownMenuTrigger
@@ -128,7 +134,7 @@ export function AppSidebar({ user }: { user: NavUser }) {
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleSignOut}>
               <LogOut className="size-4" />
-              Sign out
+              {t("nav.signOut")}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

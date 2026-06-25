@@ -4,6 +4,7 @@ import { getInvoice } from "@/app/actions/invoices"
 import { getClientOptions } from "@/app/actions/clients"
 import { PageHeader } from "@/components/page-header"
 import { InvoiceEditor } from "@/components/invoice-editor"
+import { getT } from "@/lib/i18n/server"
 
 function toDateInput(d: Date | string) {
   return new Date(d).toISOString().slice(0, 10)
@@ -17,6 +18,7 @@ export default async function EditInvoicePage({
   const user = await getCurrentUser()
   if (!user) redirect("/login")
 
+  const t = await getT()
   const { id } = await params
   const invoiceId = Number(id)
   if (!Number.isFinite(invoiceId)) notFound()
@@ -29,8 +31,8 @@ export default async function EditInvoicePage({
   return (
     <>
       <PageHeader
-        title={`Edit ${invoice.invoiceNumber}`}
-        description="Update the invoice details and line items."
+        title={t("editor.editTitle", { number: invoice.invoiceNumber })}
+        description={t("editor.editDesc")}
       />
       <div className="p-4 sm:p-8">
         <InvoiceEditor
@@ -45,6 +47,8 @@ export default async function EditInvoicePage({
             paymentTerms: invoice.paymentTerms,
             signatoryName: invoice.signatoryName,
             signatoryTitle: invoice.signatoryTitle,
+            receivedByName: invoice.receivedByName,
+            receivedByCompany: invoice.receivedByCompany,
             items: items.map((it) => ({
               product: it.product,
               origin: it.origin ?? "",

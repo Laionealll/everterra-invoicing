@@ -10,12 +10,14 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { toast } from "sonner"
+import { useI18n } from "@/components/i18n-provider"
 import { Loader2 } from "lucide-react"
 
 type Settings = SettingsInput
 
 export function SettingsForm({ settings }: { settings: Settings }) {
   const router = useRouter()
+  const { t } = useI18n()
   const [loading, setLoading] = useState(false)
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -25,10 +27,10 @@ export function SettingsForm({ settings }: { settings: Settings }) {
     setLoading(true)
     try {
       await updateSettings(input)
-      toast.success("Settings saved")
+      toast.success(t("settings.saved"))
       router.refresh()
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Could not save settings")
+      toast.error(err instanceof Error ? err.message : t("settings.saveError"))
     } finally {
       setLoading(false)
     }
@@ -42,20 +44,20 @@ export function SettingsForm({ settings }: { settings: Settings }) {
     <form onSubmit={onSubmit} className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Company identity</CardTitle>
-          <CardDescription>Shown on the invoice header and footer.</CardDescription>
+          <CardTitle className="text-base">{t("settings.identity")}</CardTitle>
+          <CardDescription>{t("settings.identityDesc")}</CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4 sm:grid-cols-2">
           <div className="flex flex-col gap-2 sm:col-span-2">
-            <Label htmlFor="legalName">Legal name</Label>
+            <Label htmlFor="legalName">{t("settings.legalName")}</Label>
             <Input id="legalName" name="legalName" defaultValue={field("legalName")} />
           </div>
           <div className="flex flex-col gap-2 sm:col-span-2">
-            <Label htmlFor="tagline">Tagline</Label>
+            <Label htmlFor="tagline">{t("settings.tagline")}</Label>
             <Input id="tagline" name="tagline" defaultValue={field("tagline")} />
           </div>
           <div className="flex flex-col gap-2 sm:col-span-2">
-            <Label htmlFor="registeredAddress">Registered address</Label>
+            <Label htmlFor="registeredAddress">{t("settings.registeredAddress")}</Label>
             <Input
               id="registeredAddress"
               name="registeredAddress"
@@ -63,15 +65,15 @@ export function SettingsForm({ settings }: { settings: Settings }) {
             />
           </div>
           <div className="flex flex-col gap-2 sm:col-span-2">
-            <Label htmlFor="operations">Operations / market</Label>
+            <Label htmlFor="operations">{t("settings.operations")}</Label>
             <Input id="operations" name="operations" defaultValue={field("operations")} />
           </div>
           <div className="flex flex-col gap-2">
-            <Label htmlFor="phone">Phone</Label>
+            <Label htmlFor="phone">{t("settings.phone")}</Label>
             <Input id="phone" name="phone" defaultValue={field("phone")} />
           </div>
           <div className="flex flex-col gap-2">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email">{t("settings.email")}</Label>
             <Input id="email" name="email" type="email" defaultValue={field("email")} />
           </div>
         </CardContent>
@@ -79,16 +81,16 @@ export function SettingsForm({ settings }: { settings: Settings }) {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Payment details</CardTitle>
-          <CardDescription>Appears in the payment instructions block.</CardDescription>
+          <CardTitle className="text-base">{t("settings.payment")}</CardTitle>
+          <CardDescription>{t("settings.paymentDesc")}</CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4 sm:grid-cols-2">
           <div className="flex flex-col gap-2">
-            <Label htmlFor="zelleEmail">Zelle email</Label>
+            <Label htmlFor="zelleEmail">{t("settings.zelleEmail")}</Label>
             <Input id="zelleEmail" name="zelleEmail" defaultValue={field("zelleEmail")} />
           </div>
           <div className="flex flex-col gap-2">
-            <Label htmlFor="acceptedMethods">Accepted methods</Label>
+            <Label htmlFor="acceptedMethods">{t("settings.acceptedMethods")}</Label>
             <Input
               id="acceptedMethods"
               name="acceptedMethods"
@@ -96,15 +98,15 @@ export function SettingsForm({ settings }: { settings: Settings }) {
             />
           </div>
           <div className="flex flex-col gap-2">
-            <Label htmlFor="bankName">Bank name</Label>
+            <Label htmlFor="bankName">{t("settings.bankName")}</Label>
             <Input id="bankName" name="bankName" defaultValue={field("bankName")} />
           </div>
           <div className="flex flex-col gap-2">
-            <Label htmlFor="accountNumber">Account number</Label>
+            <Label htmlFor="accountNumber">{t("settings.accountNumber")}</Label>
             <Input id="accountNumber" name="accountNumber" defaultValue={field("accountNumber")} />
           </div>
           <div className="flex flex-col gap-2">
-            <Label htmlFor="routingNumber">Routing number</Label>
+            <Label htmlFor="routingNumber">{t("settings.routingNumber")}</Label>
             <Input id="routingNumber" name="routingNumber" defaultValue={field("routingNumber")} />
           </div>
         </CardContent>
@@ -112,12 +114,12 @@ export function SettingsForm({ settings }: { settings: Settings }) {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Invoice defaults</CardTitle>
-          <CardDescription>Pre-filled when creating a new invoice.</CardDescription>
+          <CardTitle className="text-base">{t("settings.defaults")}</CardTitle>
+          <CardDescription>{t("settings.defaultsDesc")}</CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4 sm:grid-cols-2">
           <div className="flex flex-col gap-2">
-            <Label htmlFor="defaultSignatoryName">Signatory name</Label>
+            <Label htmlFor="defaultSignatoryName">{t("settings.defSignatoryName")}</Label>
             <Input
               id="defaultSignatoryName"
               name="defaultSignatoryName"
@@ -125,7 +127,7 @@ export function SettingsForm({ settings }: { settings: Settings }) {
             />
           </div>
           <div className="flex flex-col gap-2">
-            <Label htmlFor="defaultSignatoryTitle">Signatory title</Label>
+            <Label htmlFor="defaultSignatoryTitle">{t("settings.defSignatoryTitle")}</Label>
             <Input
               id="defaultSignatoryTitle"
               name="defaultSignatoryTitle"
@@ -133,7 +135,7 @@ export function SettingsForm({ settings }: { settings: Settings }) {
             />
           </div>
           <div className="flex flex-col gap-2 sm:col-span-2">
-            <Label htmlFor="defaultPaymentTerms">Payment terms</Label>
+            <Label htmlFor="defaultPaymentTerms">{t("settings.defPaymentTerms")}</Label>
             <Input
               id="defaultPaymentTerms"
               name="defaultPaymentTerms"
@@ -141,7 +143,7 @@ export function SettingsForm({ settings }: { settings: Settings }) {
             />
           </div>
           <div className="flex flex-col gap-2 sm:col-span-2">
-            <Label htmlFor="defaultNotes">Default notes / terms</Label>
+            <Label htmlFor="defaultNotes">{t("settings.defNotes")}</Label>
             <Textarea
               id="defaultNotes"
               name="defaultNotes"
@@ -155,7 +157,7 @@ export function SettingsForm({ settings }: { settings: Settings }) {
       <div className="flex justify-end">
         <Button type="submit" disabled={loading}>
           {loading && <Loader2 className="size-4 animate-spin" />}
-          Save settings
+          {t("settings.saveSettings")}
         </Button>
       </div>
     </form>

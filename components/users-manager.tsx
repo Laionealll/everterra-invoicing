@@ -33,6 +33,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { formatDate } from "@/lib/format"
+import { useI18n } from "@/components/i18n-provider"
 import { Loader2, Plus } from "lucide-react"
 import { toast } from "sonner"
 
@@ -53,6 +54,7 @@ export function UsersManager({
   currentUserId: string
 }) {
   const router = useRouter()
+  const { t } = useI18n()
   const [open, setOpen] = useState(false)
   const [creating, setCreating] = useState(false)
   const [pendingId, setPendingId] = useState<string | null>(null)
@@ -68,11 +70,11 @@ export function UsersManager({
         password: String(fd.get("password") || ""),
         role: String(fd.get("role") || "USER"),
       })
-      toast.success("User created")
+      toast.success(t("users.created"))
       setOpen(false)
       router.refresh()
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Could not create user")
+      toast.error(err instanceof Error ? err.message : t("users.createError"))
     } finally {
       setCreating(false)
     }
@@ -82,10 +84,10 @@ export function UsersManager({
     setPendingId(id)
     try {
       await setUserRole(id, role)
-      toast.success("Role updated")
+      toast.success(t("users.roleUpdated"))
       router.refresh()
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Could not update role")
+      toast.error(err instanceof Error ? err.message : t("users.roleError"))
     } finally {
       setPendingId(null)
     }
@@ -95,10 +97,10 @@ export function UsersManager({
     setPendingId(id)
     try {
       await setUserActive(id, isActive)
-      toast.success(isActive ? "User activated" : "User deactivated")
+      toast.success(isActive ? t("users.activated") : t("users.deactivated"))
       router.refresh()
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Could not update status")
+      toast.error(err instanceof Error ? err.message : t("users.statusError"))
     } finally {
       setPendingId(null)
     }
@@ -110,47 +112,45 @@ export function UsersManager({
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger render={<Button />}>
             <Plus className="size-4" />
-            New user
+            {t("users.newUser")}
           </DialogTrigger>
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
-              <DialogTitle>New user</DialogTitle>
-              <DialogDescription>
-                Create a team member account. They can sign in immediately.
-              </DialogDescription>
+              <DialogTitle>{t("users.newUser")}</DialogTitle>
+              <DialogDescription>{t("users.newUserDesc")}</DialogDescription>
             </DialogHeader>
             <form onSubmit={onCreate} className="flex flex-col gap-4">
               <div className="flex flex-col gap-2">
-                <Label htmlFor="name">Full name</Label>
+                <Label htmlFor="name">{t("users.fullName")}</Label>
                 <Input id="name" name="name" required />
               </div>
               <div className="flex flex-col gap-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email">{t("users.email")}</Label>
                 <Input id="email" name="email" type="email" required />
               </div>
               <div className="flex flex-col gap-2">
-                <Label htmlFor="password">Temporary password</Label>
+                <Label htmlFor="password">{t("users.tempPassword")}</Label>
                 <Input id="password" name="password" type="password" minLength={8} required />
               </div>
               <div className="flex flex-col gap-2">
-                <Label htmlFor="role">Role</Label>
+                <Label htmlFor="role">{t("users.role")}</Label>
                 <Select name="role" defaultValue="USER">
                   <SelectTrigger id="role">
-                    <SelectValue />
+                    <SelectValue>{(value: string) => t(value === "ADMIN" ? "users.roleAdmin" : "users.roleUser")}</SelectValue>
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="USER">User</SelectItem>
-                    <SelectItem value="ADMIN">Admin</SelectItem>
+                    <SelectItem value="USER">{t("users.roleUser")}</SelectItem>
+                    <SelectItem value="ADMIN">{t("users.roleAdmin")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <DialogFooter>
                 <Button type="button" variant="outline" onClick={() => setOpen(false)}>
-                  Cancel
+                  {t("common.cancel")}
                 </Button>
                 <Button type="submit" disabled={creating}>
                   {creating && <Loader2 className="size-4 animate-spin" />}
-                  Create user
+                  {t("users.createUser")}
                 </Button>
               </DialogFooter>
             </form>
@@ -162,12 +162,12 @@ export function UsersManager({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead>Email</TableHead>
-              <TableHead>Role</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Joined</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+              <TableHead>{t("users.colName")}</TableHead>
+              <TableHead>{t("users.colEmail")}</TableHead>
+              <TableHead>{t("users.colRole")}</TableHead>
+              <TableHead>{t("users.colStatus")}</TableHead>
+              <TableHead>{t("users.colJoined")}</TableHead>
+              <TableHead className="text-right">{t("users.colActions")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -177,7 +177,7 @@ export function UsersManager({
                 <TableRow key={u.id}>
                   <TableCell className="font-medium">
                     {u.name}
-                    {isSelf && <span className="ml-2 text-xs text-muted-foreground">(you)</span>}
+                    {isSelf && <span className="ml-2 text-xs text-muted-foreground">({t("common.you")})</span>}
                   </TableCell>
                   <TableCell className="text-muted-foreground">{u.email}</TableCell>
                   <TableCell>
@@ -187,20 +187,20 @@ export function UsersManager({
                       disabled={pendingId === u.id || isSelf}
                     >
                       <SelectTrigger className="h-8 w-28">
-                        <SelectValue />
+                        <SelectValue>{(value: string) => t(value === "ADMIN" ? "users.roleAdmin" : "users.roleUser")}</SelectValue>
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="USER">User</SelectItem>
-                        <SelectItem value="ADMIN">Admin</SelectItem>
+                        <SelectItem value="USER">{t("users.roleUser")}</SelectItem>
+                        <SelectItem value="ADMIN">{t("users.roleAdmin")}</SelectItem>
                       </SelectContent>
                     </Select>
                   </TableCell>
                   <TableCell>
                     {u.isActive ? (
-                      <Badge variant="secondary">Active</Badge>
+                      <Badge variant="secondary">{t("users.active")}</Badge>
                     ) : (
                       <Badge variant="outline" className="text-muted-foreground">
-                        Inactive
+                        {t("users.inactive")}
                       </Badge>
                     )}
                   </TableCell>
@@ -214,7 +214,7 @@ export function UsersManager({
                       disabled={pendingId === u.id || isSelf}
                       onClick={() => onToggleActive(u.id, !u.isActive)}
                     >
-                      {u.isActive ? "Deactivate" : "Activate"}
+                      {u.isActive ? t("users.deactivate") : t("users.activate")}
                     </Button>
                   </TableCell>
                 </TableRow>

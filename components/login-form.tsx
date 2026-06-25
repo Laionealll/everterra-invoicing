@@ -5,6 +5,7 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { authClient } from "@/lib/auth-client"
+import { useI18n } from "@/components/i18n-provider"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -13,6 +14,7 @@ import { Loader2 } from "lucide-react"
 
 export function LoginForm() {
   const router = useRouter()
+  const { t } = useI18n()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [loading, setLoading] = useState(false)
@@ -22,11 +24,11 @@ export function LoginForm() {
     setLoading(true)
     const { error } = await authClient.signIn.email({ email, password })
     if (error) {
-      toast.error(error.message || "Invalid email or password")
+      toast.error(error.message || t("auth.invalidCreds"))
       setLoading(false)
       return
     }
-    toast.success("Welcome back")
+    toast.success(t("auth.welcomeBack"))
     router.push("/dashboard")
     router.refresh()
   }
@@ -34,7 +36,7 @@ export function LoginForm() {
   return (
     <form onSubmit={onSubmit} className="flex flex-col gap-4">
       <div className="flex flex-col gap-2">
-        <Label htmlFor="email">Email</Label>
+        <Label htmlFor="email">{t("auth.email")}</Label>
         <Input
           id="email"
           type="email"
@@ -42,17 +44,17 @@ export function LoginForm() {
           required
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder="you@everterra.com"
+          placeholder={t("auth.emailPlaceholder")}
         />
       </div>
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-between">
-          <Label htmlFor="password">Password</Label>
+          <Label htmlFor="password">{t("auth.password")}</Label>
           <Link
             href="/forgot-password"
             className="text-sm text-muted-foreground hover:text-foreground"
           >
-            Forgot password?
+            {t("auth.forgotPassword")}
           </Link>
         </div>
         <Input
@@ -67,7 +69,7 @@ export function LoginForm() {
       </div>
       <Button type="submit" disabled={loading} className="mt-2">
         {loading && <Loader2 className="size-4 animate-spin" />}
-        Sign in
+        {t("auth.signIn")}
       </Button>
     </form>
   )

@@ -17,6 +17,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { toast } from "sonner"
+import { useI18n } from "@/components/i18n-provider"
 import { Loader2 } from "lucide-react"
 
 type ClientRecord = ClientInput & { id?: number }
@@ -33,6 +34,7 @@ export function ClientFormDialog({
   onOpenChange?: (o: boolean) => void
 }) {
   const router = useRouter()
+  const { t } = useI18n()
   const [internalOpen, setInternalOpen] = useState(false)
   const open = controlledOpen ?? internalOpen
   const setOpen = onOpenChange ?? setInternalOpen
@@ -56,22 +58,22 @@ export function ClientFormDialog({
       notes: String(fd.get("notes") || ""),
     }
     if (!input.name.trim()) {
-      toast.error("Client name is required")
+      toast.error(t("clients.nameRequired"))
       return
     }
     setLoading(true)
     try {
       if (isEdit && client?.id) {
         await updateClient(client.id, input)
-        toast.success("Client updated")
+        toast.success(t("clients.updated"))
       } else {
         await createClient(input)
-        toast.success("Client created")
+        toast.success(t("clients.created"))
       }
       setOpen(false)
       router.refresh()
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Something went wrong")
+      toast.error(err instanceof Error ? err.message : t("clients.genericError"))
     } finally {
       setLoading(false)
     }
@@ -82,69 +84,69 @@ export function ClientFormDialog({
       {trigger}
       <DialogContent className="max-h-[90svh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>{isEdit ? "Edit client" : "New client"}</DialogTitle>
+          <DialogTitle>{isEdit ? t("clients.editTitle") : t("clients.formTitle")}</DialogTitle>
           <DialogDescription>
-            {isEdit ? "Update this client's details." : "Add a client to bill on invoices."}
+            {isEdit ? t("clients.editDesc") : t("clients.formDesc")}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={onSubmit} className="flex flex-col gap-4">
           <div className="flex flex-col gap-2">
-            <Label htmlFor="name">Company / Client name *</Label>
+            <Label htmlFor="name">{t("clients.name")}</Label>
             <Input id="name" name="name" required defaultValue={client?.name} />
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="flex flex-col gap-2">
-              <Label htmlFor="contactName">Contact name</Label>
+              <Label htmlFor="contactName">{t("clients.contactName")}</Label>
               <Input id="contactName" name="contactName" defaultValue={client?.contactName} />
             </div>
             <div className="flex flex-col gap-2">
-              <Label htmlFor="phone">Phone</Label>
+              <Label htmlFor="phone">{t("clients.phone")}</Label>
               <Input id="phone" name="phone" defaultValue={client?.phone} />
             </div>
           </div>
           <div className="flex flex-col gap-2">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email">{t("clients.email")}</Label>
             <Input id="email" name="email" type="email" defaultValue={client?.email} />
           </div>
           <div className="flex flex-col gap-2">
-            <Label htmlFor="addressLine1">Address</Label>
+            <Label htmlFor="addressLine1">{t("clients.address")}</Label>
             <Input
               id="addressLine1"
               name="addressLine1"
-              placeholder="Street address"
+              placeholder={t("clients.street")}
               defaultValue={client?.addressLine1}
             />
             <Input
               name="addressLine2"
-              placeholder="Suite, unit, etc. (optional)"
+              placeholder={t("clients.suite")}
               defaultValue={client?.addressLine2}
             />
           </div>
           <div className="grid gap-4 sm:grid-cols-3">
             <div className="flex flex-col gap-2">
-              <Label htmlFor="city">City</Label>
+              <Label htmlFor="city">{t("clients.city")}</Label>
               <Input id="city" name="city" defaultValue={client?.city} />
             </div>
             <div className="flex flex-col gap-2">
-              <Label htmlFor="state">State</Label>
+              <Label htmlFor="state">{t("clients.state")}</Label>
               <Input id="state" name="state" defaultValue={client?.state} />
             </div>
             <div className="flex flex-col gap-2">
-              <Label htmlFor="zip">ZIP</Label>
+              <Label htmlFor="zip">{t("clients.zip")}</Label>
               <Input id="zip" name="zip" defaultValue={client?.zip} />
             </div>
           </div>
           <div className="flex flex-col gap-2">
-            <Label htmlFor="notes">Notes</Label>
+            <Label htmlFor="notes">{t("clients.notes")}</Label>
             <Textarea id="notes" name="notes" rows={2} defaultValue={client?.notes} />
           </div>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => setOpen(false)}>
-              Cancel
+              {t("common.cancel")}
             </Button>
             <Button type="submit" disabled={loading}>
               {loading && <Loader2 className="size-4 animate-spin" />}
-              {isEdit ? "Save changes" : "Create client"}
+              {isEdit ? t("clients.saveChanges") : t("clients.createClient")}
             </Button>
           </DialogFooter>
         </form>

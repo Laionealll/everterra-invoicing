@@ -8,24 +8,31 @@ import {
 } from "@react-pdf/renderer"
 import { formatCurrency, formatDate } from "@/lib/format"
 
+// NOTA: el PDF de la factura SIEMPRE se genera en inglés (va dirigido a los
+// clientes), independientemente del idioma de la interfaz. No usar i18n aquí.
+
 const GREEN = "#2f5d3a"
 const GREEN_LIGHT = "#7aa86f"
+const PRIMARY = "#356b41"
+const PRIMARY_SOFT = "#e8f0e6"
 const INK = "#1f2a22"
 const MUTED = "#6b756c"
 const BORDER = "#dde3dc"
 const SOFT = "#f3f6f1"
+const ZEBRA = "#f8faf7"
 
 const styles = StyleSheet.create({
-  page: { paddingBottom: 48, fontSize: 9, color: INK, fontFamily: "Helvetica" },
+  page: { paddingBottom: 56, fontSize: 9, color: INK, fontFamily: "Helvetica" },
   header: {
     backgroundColor: GREEN,
     color: "#ffffff",
     paddingHorizontal: 32,
-    paddingVertical: 22,
+    paddingVertical: 24,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
   },
+  accent: { height: 3, backgroundColor: PRIMARY },
   brand: { fontSize: 18, fontFamily: "Helvetica-Bold", letterSpacing: 1 },
   tagline: { fontSize: 7, color: GREEN_LIGHT, marginTop: 3, letterSpacing: 1.5 },
   logoBox: {
@@ -35,12 +42,27 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
   },
   logoImg: { height: 34, objectFit: "contain" },
-  invoiceTitle: { fontSize: 20, fontFamily: "Helvetica-Bold", textAlign: "right" },
-  invoiceNo: { fontSize: 9, color: "#d7e3d4", textAlign: "right", marginTop: 2 },
+  invoiceTitle: { fontSize: 24, fontFamily: "Helvetica-Bold", textAlign: "right", letterSpacing: 1 },
+  invoiceNo: { fontSize: 9, color: "#d7e3d4", textAlign: "right", marginTop: 3 },
   body: { paddingHorizontal: 32, paddingTop: 22 },
   row: { flexDirection: "row", justifyContent: "space-between" },
   col: { flexDirection: "column", width: "48%" },
-  label: { fontSize: 7, color: MUTED, textTransform: "uppercase", letterSpacing: 1, marginBottom: 3 },
+  colRight: { flexDirection: "column", width: "48%", textAlign: "right" },
+  label: {
+    fontSize: 7,
+    color: PRIMARY,
+    fontFamily: "Helvetica-Bold",
+    textTransform: "uppercase",
+    letterSpacing: 1,
+    marginBottom: 3,
+  },
+  mutedLabel: {
+    fontSize: 7,
+    color: MUTED,
+    textTransform: "uppercase",
+    letterSpacing: 1,
+    marginBottom: 3,
+  },
   strong: { fontFamily: "Helvetica-Bold", fontSize: 10, marginBottom: 2 },
   line: { color: MUTED, marginBottom: 1 },
   meta: {
@@ -49,19 +71,18 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: BORDER,
     borderRadius: 4,
-    backgroundColor: SOFT,
-    padding: 10,
+    overflow: "hidden",
   },
-  metaCell: { flex: 1 },
+  metaCell: { flex: 1, padding: 10, backgroundColor: SOFT },
+  metaCellDue: { flex: 1, padding: 10, backgroundColor: PRIMARY_SOFT },
   metaValue: { fontFamily: "Helvetica-Bold", marginTop: 2 },
-  table: { marginTop: 18, borderWidth: 1, borderColor: BORDER, borderRadius: 4 },
+  metaValueDue: { fontFamily: "Helvetica-Bold", marginTop: 2, color: PRIMARY },
+  table: { marginTop: 18, borderWidth: 1, borderColor: BORDER, borderRadius: 4, overflow: "hidden" },
   th: {
     flexDirection: "row",
-    backgroundColor: SOFT,
-    paddingVertical: 6,
+    backgroundColor: GREEN,
+    paddingVertical: 7,
     paddingHorizontal: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: BORDER,
   },
   tr: {
     flexDirection: "row",
@@ -70,35 +91,77 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: BORDER,
   },
+  trAlt: { backgroundColor: ZEBRA },
   cProduct: { width: "30%" },
   cDetails: { width: "34%", color: MUTED },
   cQty: { width: "10%", textAlign: "right" },
   cUnit: { width: "13%", textAlign: "right" },
   cAmount: { width: "13%", textAlign: "right" },
-  thText: { fontFamily: "Helvetica-Bold", fontSize: 8 },
+  thText: { fontFamily: "Helvetica-Bold", fontSize: 8, color: "#ffffff" },
   totals: { marginTop: 12, flexDirection: "row", justifyContent: "flex-end" },
   totalsBox: { width: "45%" },
   totalRow: { flexDirection: "row", justifyContent: "space-between", paddingVertical: 2 },
   grandRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    paddingTop: 6,
-    marginTop: 4,
-    borderTopWidth: 1,
-    borderTopColor: BORDER,
+    marginTop: 6,
+    paddingVertical: 7,
+    paddingHorizontal: 8,
+    borderRadius: 4,
+    backgroundColor: GREEN,
   },
-  grand: { fontFamily: "Helvetica-Bold", fontSize: 12 },
-  panels: { marginTop: 20, flexDirection: "row", justifyContent: "space-between" },
+  grand: { fontFamily: "Helvetica-Bold", fontSize: 12, color: "#ffffff" },
+  panels: { marginTop: 22, flexDirection: "row", justifyContent: "space-between" },
   panel: {
     width: "48%",
     borderWidth: 1,
     borderColor: BORDER,
     borderRadius: 4,
+    backgroundColor: SOFT,
     padding: 10,
   },
   notes: { width: "48%" },
-  signature: { marginTop: 36, alignItems: "flex-end", paddingHorizontal: 32 },
-  sigLine: { width: 150, borderTopWidth: 1, borderTopColor: INK, marginBottom: 3 },
+  // Firmas
+  signatures: {
+    marginTop: 40,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingHorizontal: 32,
+  },
+  sigCol: { width: "45%" },
+  sigSpace: { height: 26 },
+  sigBlock: { borderTopWidth: 1, borderTopColor: INK, paddingTop: 4 },
+  sigLabel: {
+    fontSize: 7,
+    color: MUTED,
+    fontFamily: "Helvetica-Bold",
+    textTransform: "uppercase",
+    letterSpacing: 1,
+  },
+  sigName: { fontFamily: "Helvetica-Bold", marginTop: 2 },
+  sigMuted: { color: MUTED, marginTop: 1 },
+  // Fin del documento
+  endRow: {
+    marginTop: 36,
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 32,
+  },
+  endLine: { flex: 1, borderTopWidth: 1, borderTopColor: BORDER },
+  endText: {
+    fontSize: 7,
+    color: MUTED,
+    marginHorizontal: 8,
+    textTransform: "uppercase",
+    letterSpacing: 2,
+  },
+  footer: {
+    marginTop: 8,
+    textAlign: "center",
+    fontSize: 7,
+    color: MUTED,
+    paddingHorizontal: 32,
+  },
 })
 
 export type PdfPayload = {
@@ -114,6 +177,8 @@ export type PdfPayload = {
     paymentTerms: string
     signatoryName: string
     signatoryTitle: string
+    receivedByName: string
+    receivedByCompany: string
     items: {
       product: string
       origin: string | null
@@ -153,6 +218,7 @@ export type PdfPayload = {
 
 export function InvoicePdf({ invoice, client, company, logoData }: PdfPayload) {
   const showTax = Number(invoice.taxRate) > 0 || Number(invoice.taxAmount) > 0
+  const receivedCompany = invoice.receivedByCompany || client?.name || ""
   const clientLines = client
     ? [
         client.addressLine1,
@@ -182,6 +248,7 @@ export function InvoicePdf({ invoice, client, company, logoData }: PdfPayload) {
             <Text style={styles.invoiceNo}>{invoice.invoiceNumber}</Text>
           </View>
         </View>
+        <View style={styles.accent} />
 
         <View style={styles.body}>
           <View style={styles.row}>
@@ -193,7 +260,7 @@ export function InvoicePdf({ invoice, client, company, logoData }: PdfPayload) {
               <Text style={styles.line}>{company.phone}</Text>
               <Text style={styles.line}>{company.email}</Text>
             </View>
-            <View style={styles.col}>
+            <View style={styles.colRight}>
               <Text style={styles.label}>Bill To</Text>
               <Text style={styles.strong}>{client?.name ?? "-"}</Text>
               {client?.contactName ? (
@@ -210,16 +277,16 @@ export function InvoicePdf({ invoice, client, company, logoData }: PdfPayload) {
 
           <View style={styles.meta}>
             <View style={styles.metaCell}>
-              <Text style={styles.label}>Issue Date</Text>
+              <Text style={styles.mutedLabel}>Issue Date</Text>
               <Text style={styles.metaValue}>{formatDate(invoice.issueDate)}</Text>
             </View>
             <View style={styles.metaCell}>
-              <Text style={styles.label}>Due Date</Text>
+              <Text style={styles.mutedLabel}>Due Date</Text>
               <Text style={styles.metaValue}>{formatDate(invoice.dueDate)}</Text>
             </View>
-            <View style={styles.metaCell}>
-              <Text style={styles.label}>Amount Due</Text>
-              <Text style={styles.metaValue}>{formatCurrency(invoice.total)}</Text>
+            <View style={styles.metaCellDue}>
+              <Text style={[styles.mutedLabel, { color: PRIMARY }]}>Amount Due</Text>
+              <Text style={styles.metaValueDue}>{formatCurrency(invoice.total)}</Text>
             </View>
           </View>
 
@@ -240,7 +307,7 @@ export function InvoicePdf({ invoice, client, company, logoData }: PdfPayload) {
                 .filter(Boolean)
                 .join("  ")
               return (
-                <View key={i} style={styles.tr}>
+                <View key={i} style={[styles.tr, i % 2 === 1 ? styles.trAlt : {}]}>
                   <Text style={styles.cProduct}>{it.product}</Text>
                   <Text style={styles.cDetails}>{details || "-"}</Text>
                   <Text style={styles.cQty}>{Number(it.qty)}</Text>
@@ -297,12 +364,37 @@ export function InvoicePdf({ invoice, client, company, logoData }: PdfPayload) {
           </View>
         </View>
 
-        <View style={styles.signature}>
-          <View style={styles.sigLine} />
-          <Text style={{ fontFamily: "Helvetica-Bold" }}>{invoice.signatoryName}</Text>
-          <Text style={{ color: MUTED }}>{invoice.signatoryTitle}</Text>
-          <Text style={{ color: MUTED }}>{company.legalName}</Text>
+        {/* Firmas: firma autorizada (izquierda) + recibido por (derecha) */}
+        <View style={styles.signatures}>
+          <View style={styles.sigCol}>
+            <View style={styles.sigSpace} />
+            <View style={styles.sigBlock}>
+              <Text style={styles.sigLabel}>Authorized Signature</Text>
+              <Text style={styles.sigName}>{invoice.signatoryName}</Text>
+              <Text style={styles.sigMuted}>{invoice.signatoryTitle}</Text>
+              <Text style={styles.sigMuted}>{company.legalName}</Text>
+            </View>
+          </View>
+          <View style={styles.sigCol}>
+            <View style={styles.sigSpace} />
+            <View style={styles.sigBlock}>
+              <Text style={styles.sigLabel}>Received By</Text>
+              <Text style={styles.sigName}>{invoice.receivedByName || " "}</Text>
+              <Text style={styles.sigMuted}>Company: {receivedCompany || " "}</Text>
+              <Text style={styles.sigMuted}>Date: ______________________</Text>
+            </View>
+          </View>
         </View>
+
+        {/* Marca de fin de documento */}
+        <View style={styles.endRow}>
+          <View style={styles.endLine} />
+          <Text style={styles.endText}>End of Invoice</Text>
+          <View style={styles.endLine} />
+        </View>
+        <Text style={styles.footer}>
+          {company.legalName} · {company.phone} · {company.email}
+        </Text>
       </Page>
     </Document>
   )

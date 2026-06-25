@@ -5,19 +5,21 @@ import { ClientFormDialog } from "@/components/client-form-dialog"
 import { Button } from "@/components/ui/button"
 import { DialogTrigger } from "@/components/ui/dialog"
 import { Card, CardContent } from "@/components/ui/card"
+import { getT } from "@/lib/i18n/server"
 import { Plus, Users } from "lucide-react"
 
 export default async function ClientsPage() {
+  const t = await getT()
   const clients = await getClientsWithCounts()
 
   return (
     <>
-      <PageHeader title="Clients" description="Manage the businesses you invoice.">
+      <PageHeader title={t("clients.title")} description={t("clients.desc")}>
         <ClientFormDialog
           trigger={
             <DialogTrigger render={<Button />}>
               <Plus className="size-4" />
-              New Client
+              {t("clients.newClient")}
             </DialogTrigger>
           }
         />
@@ -31,16 +33,14 @@ export default async function ClientsPage() {
                 <Users className="size-6" />
               </div>
               <div className="flex flex-col gap-1">
-                <p className="font-medium">No clients yet</p>
-                <p className="text-sm text-muted-foreground">
-                  Add your first client to start invoicing.
-                </p>
+                <p className="font-medium">{t("clients.noClients")}</p>
+                <p className="text-sm text-muted-foreground">{t("clients.addFirst")}</p>
               </div>
               <ClientFormDialog
                 trigger={
                   <DialogTrigger render={<Button />}>
                     <Plus className="size-4" />
-                    New Client
+                    {t("clients.newClient")}
                   </DialogTrigger>
                 }
               />

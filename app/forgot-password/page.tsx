@@ -1,9 +1,11 @@
 import { AuthShell } from "@/components/auth-shell"
 import { ForgotPasswordForm } from "@/components/forgot-password-form"
+import { getT } from "@/lib/i18n/server"
 
-export default function ForgotPasswordPage() {
+export default async function ForgotPasswordPage() {
+  const t = await getT()
   return (
-    <AuthShell title="Reset password" description="Enter your email to receive a reset link.">
+    <AuthShell title={t("auth.forgotTitle")} description={t("auth.forgotDesc")}>
       <ForgotPasswordForm />
     </AuthShell>
   )

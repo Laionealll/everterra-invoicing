@@ -38,6 +38,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { formatCurrency, formatDate } from "@/lib/format"
+import { useI18n } from "@/components/i18n-provider"
 import { Eye, MoreHorizontal, Pencil, Trash2 } from "lucide-react"
 import { toast } from "sonner"
 
@@ -54,16 +55,15 @@ export type InvoiceRow = {
 
 const STATUSES = ["ALL", "DRAFT", "SENT", "PAID", "OVERDUE", "CANCELLED"]
 
-function statusLabel(s: string) {
-  return s === "ALL" ? "All statuses" : s.charAt(0) + s.slice(1).toLowerCase()
-}
-
 export function InvoicesTable({ invoices }: { invoices: InvoiceRow[] }) {
   const router = useRouter()
+  const { t } = useI18n()
   const [query, setQuery] = useState("")
   const [status, setStatus] = useState("ALL")
   const [toDelete, setToDelete] = useState<InvoiceRow | null>(null)
   const [busy, setBusy] = useState(false)
+
+  const statusLabel = (s: string) => (s === "ALL" ? t("invoices.allStatuses") : t(`invoices.status${s}`))
 
   const filtered = useMemo(() => {
     return invoices.filter((inv) => {
@@ -82,11 +82,11 @@ export function InvoicesTable({ invoices }: { invoices: InvoiceRow[] }) {
     setBusy(true)
     try {
       await deleteInvoice(toDelete.id)
-      toast.success(`Deleted ${toDelete.invoiceNumber}`)
+      toast.success(t("invoices.deleted", { number: toDelete.invoiceNumber }))
       setToDelete(null)
       router.refresh()
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Could not delete invoice")
+      toast.error(err instanceof Error ? err.message : t("invoices.deleteError"))
     } finally {
       setBusy(false)
     }
@@ -96,7 +96,7 @@ export function InvoicesTable({ invoices }: { invoices: InvoiceRow[] }) {
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
         <Input
-          placeholder="Search by number or client..."
+          placeholder={t("invoices.searchPlaceholder")}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           className="sm:max-w-xs"
@@ -119,12 +119,12 @@ export function InvoicesTable({ invoices }: { invoices: InvoiceRow[] }) {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Invoice</TableHead>
-              <TableHead>Client</TableHead>
-              <TableHead>Issued</TableHead>
-              <TableHead>Due</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead className="text-right">Total</TableHead>
+              <TableHead>{t("invoices.colInvoice")}</TableHead>
+              <TableHead>{t("invoices.colClient")}</TableHead>
+              <TableHead>{t("invoices.colIssued")}</TableHead>
+              <TableHead>{t("invoices.colDue")}</TableHead>
+              <TableHead>{t("invoices.colStatus")}</TableHead>
+              <TableHead className="text-right">{t("invoices.colTotal")}</TableHead>
               <TableHead className="w-12" />
             </TableRow>
           </TableHeader>
@@ -132,7 +132,7 @@ export function InvoicesTable({ invoices }: { invoices: InvoiceRow[] }) {
             {filtered.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={7} className="h-24 text-center text-muted-foreground">
-                  No invoices found.
+                  {t("invoices.noneFound")}
                 </TableCell>
               </TableRow>
             ) : (
@@ -143,7 +143,7 @@ export function InvoicesTable({ invoices }: { invoices: InvoiceRow[] }) {
                       {inv.invoiceNumber}
                     </Link>
                   </TableCell>
-                  <TableCell>{inv.clientName ?? "—"}</TableCell>
+                  <TableCell>{inv.clientName ?? t("common.none")}</TableCell>
                   <TableCell className="text-muted-foreground">
                     {formatDate(inv.issueDate)}
                   </TableCell>
@@ -162,16 +162,16 @@ export function InvoicesTable({ invoices }: { invoices: InvoiceRow[] }) {
                         render={<Button variant="ghost" size="icon" className="size-8" />}
                       >
                         <MoreHorizontal className="size-4" />
-                        <span className="sr-only">Actions</span>
+                        <span className="sr-only">{t("common.actions")}</span>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem onClick={() => router.push(`/invoices/${inv.id}`)}>
                           <Eye className="size-4" />
-                          View
+                          {t("common.view")}
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => router.push(`/invoices/${inv.id}/edit`)}>
                           <Pencil className="size-4" />
-                          Edit
+                          {t("common.edit")}
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
@@ -179,7 +179,7 @@ export function InvoicesTable({ invoices }: { invoices: InvoiceRow[] }) {
                           onClick={() => setToDelete(inv)}
                         >
                           <Trash2 className="size-4" />
-                          Delete
+                          {t("common.delete")}
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -194,19 +194,17 @@ export function InvoicesTable({ invoices }: { invoices: InvoiceRow[] }) {
       <Dialog open={!!toDelete} onOpenChange={(o) => !o && setToDelete(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete invoice</DialogTitle>
+            <DialogTitle>{t("invoices.deleteTitle")}</DialogTitle>
             <DialogDescription>
-              {toDelete
-                ? `This permanently deletes ${toDelete.invoiceNumber} and its line items.`
-                : ""}
+              {toDelete ? t("invoices.deleteDesc", { number: toDelete.invoiceNumber }) : ""}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button variant="outline" onClick={() => setToDelete(null)} disabled={busy}>
-              Cancel
+              {t("common.cancel")}
             </Button>
             <Button variant="destructive" onClick={onConfirmDelete} disabled={busy}>
-              Delete
+              {t("common.delete")}
             </Button>
           </DialogFooter>
         </DialogContent>

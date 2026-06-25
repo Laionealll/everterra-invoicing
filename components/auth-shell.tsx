@@ -1,5 +1,6 @@
 import type React from "react"
 import { BrandLogo } from "@/components/brand-logo"
+import { LanguageToggle } from "@/components/language-toggle"
 
 export function AuthShell({
   title,
@@ -13,7 +14,10 @@ export function AuthShell({
   footer?: React.ReactNode
 }) {
   return (
-    <main className="flex min-h-svh flex-col items-center justify-center bg-sidebar p-6">
+    <main className="relative flex min-h-svh flex-col items-center justify-center bg-sidebar p-6">
+      <div className="absolute right-4 top-4">
+        <LanguageToggle className="text-sidebar-foreground/80 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground" />
+      </div>
       <div className="w-full max-w-sm">
         <div className="mb-8 flex flex-col items-center gap-3 text-center">
           <div className="rounded-xl bg-card px-6 py-4 shadow-sm">
