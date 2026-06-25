@@ -238,6 +238,15 @@ export async function sendInvoice(id: number) {
       console.error("[everterra] Could not render invoice PDF for email:", err)
     }
     const { formatCurrency, formatDate } = await import("@/lib/format")
+    // OJO: no usar un reply-to en otro dominio (p. ej. gmail). Si el From es
+    // @everterrausa.com y el Reply-To es un freemail, SpamAssassin lo marca como
+    // FREEMAIL_FORGED_REPLYTO (-2.5) y Outlook lo trata como posible spoofing.
+    // Sin reply-to, las respuestas van al propio From (invoices@everterrausa.com),
+    // que conviene reenviar al gmail (ver instrucciones).
+    const replyTo =
+      process.env.EMAIL_REPLY_TO && process.env.EMAIL_REPLY_TO.trim()
+        ? process.env.EMAIL_REPLY_TO.trim()
+        : undefined
     const res = await sendInvoiceEmail({
       to,
       clientName: data.client?.contactName || data.client?.name || undefined,
@@ -245,7 +254,7 @@ export async function sendInvoice(id: number) {
       total: formatCurrency(data.invoice.total),
       dueDate: formatDate(data.invoice.dueDate),
       pdf,
-      replyTo: company.email || undefined,
+      replyTo,
       company: {
         legalName: company.legalName,
         tagline: company.tagline,

@@ -62,7 +62,7 @@ function brandedEmail({
             </td>
           </tr>
           <tr>
-            <td style="padding:16px 8px 0; text-align:center; color:#9aa39a; font-size:11px; line-height:1.6; font-family: Arial, Helvetica, sans-serif;">
+            <td style="padding:16px 8px 0; text-align:center; color:${MUTED}; font-size:11px; line-height:1.6; font-family: Arial, Helvetica, sans-serif;">
               ${name}${addr ? ` &middot; ${addr}` : ""}<br>
               This is an automated message. Please do not mark it as junk so future invoices reach your inbox.
             </td>
